@@ -15,10 +15,10 @@ class ImageCrawler
     @dir_path = dir_path
   end
 
-  def crawl(range:)
+  def crawl(range:, count: 20)
     since_day = range.begin.strftime('%Y-%m-%d_00:00:00_JST')
     until_day = range.end.strftime('%Y-%m-%d_00:00:00_JST')
-    client.search('', from: screen_name, since: since_day, until: until_day, filter: :images, exclude: :retweets, lang: :ja).map do |tweet|
+    client.search('', from: screen_name, since: since_day, until: until_day, filter: :images, exclude: :retweets, tweet_mode: :extended, lang: :ja).map do |tweet|
       next unless tweet.media?
 
       tweet.media.map(&:media_uri_https).map(&:to_s).each do |uri|
@@ -31,7 +31,7 @@ class ImageCrawler
 
   def download(uri:, file_name:)
     FileUtils.mkdir_p(dir_path) unless Dir.exist?(dir_path)
-    Kernel.open(uri) do |image|
+    Kernel.open("#{uri}:large") do |image|
       File.open("#{dir_path}/#{file_name}", 'wb') do |file|
         file.puts image.read
       end
@@ -57,7 +57,7 @@ def main
   IRIS_TWITTER_SCRREN_NAMES.each do |screen_name|
     today = Time.now.to_date
     yesterday = today.prev_month
-    ImageCrawler.new(client: client, screen_name: screen_name).crawl(range: yesterday..today)
+    ImageCrawler.new(client: client, screen_name: screen_name).crawl(range: yesterday..today, count: 100)
   end
 end
 
