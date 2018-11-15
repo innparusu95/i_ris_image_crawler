@@ -56,7 +56,7 @@ def main
 
   IRIS_TWITTER_SCRREN_NAMES.each do |screen_name|
     today = Time.now.to_date
-    yesterday = today.prev_month
+    yesterday = today.prev_day
     ImageCrawler.new(client: client, screen_name: screen_name).crawl(range: yesterday..today, count: 100)
   end
 end
