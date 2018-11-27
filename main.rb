@@ -23,6 +23,7 @@ class ImageCrawler
 
       tweet.media.map(&:media_uri_https).map(&:to_s).each do |uri|
         download(uri: uri, file_name: uri.split('/').last)
+        puts "download account: #{screen_name} uri:#{uri}"
       end
     end
   end
@@ -43,7 +44,6 @@ class ImageCrawler
   end
 end
 
-IRIS_TWITTER_SCRREN_NAMES = %w[iris_y_saki iris_s_yu iris_a_himi iris_k_miyu iris_w_yuki iris_s_azuki].freeze
 DIR_PATH = './images'.freeze
 
 def main
@@ -54,7 +54,8 @@ def main
     config.access_token_secret = ENV['TWITTER_ACCESS_TOKEN_SECRET']
   end
 
-  IRIS_TWITTER_SCRREN_NAMES.each do |screen_name|
+  iris_list_screen_names = client.list_members(slug: 'i-ris').map(&:screen_name)
+  iris_list_screen_names.each do |screen_name|
     today = Time.now.to_date
     yesterday = today.prev_day
     ImageCrawler.new(client: client, screen_name: screen_name).crawl(range: yesterday..today, count: 100)
