@@ -4,7 +4,6 @@ require 'twitter'
 require 'fileutils'
 require 'pry'
 
-# Twitter image
 class ImageCrawler
   attr_reader :client, :screen_name
   private :client, :screen_name
