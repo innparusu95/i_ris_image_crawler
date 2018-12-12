@@ -2,7 +2,6 @@ require 'date'
 require 'open-uri'
 require 'twitter'
 require 'fileutils'
-require 'pry'
 
 class ImageCrawler
   attr_reader :client, :screen_name
