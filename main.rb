@@ -1,3 +1,4 @@
+#!/usr/bin/env ruby
 require 'date'
 require 'open-uri'
 require 'twitter'
@@ -42,7 +43,7 @@ class ImageCrawler
   end
 end
 
-DIR_PATH = './images'.freeze
+DIR_PATH = ENV['IMAGE_DOWNLOAD_DIR_PATH'].freeze
 
 def main
   client = Twitter::REST::Client.new do |config|
