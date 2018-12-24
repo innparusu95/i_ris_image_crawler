@@ -1,0 +1,37 @@
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: i-ris-image-crawler
+  labels:
+    cronjob: i-ris-image-crawler
+spec:
+  concurrencyPolicy: Replace
+  schedule: "00 15 * * *"
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          labels:
+            job: i-ris-image-crawler
+        spec:
+          containers:
+          - name: i-ris-image-crawler
+            image: example/i-ris-image-crawler:1.1
+            imagePullPolicy: IfNotPresent
+            env:
+              - name: TZ
+                value: "Asia/Tokyo"
+            envFrom:
+            - secretRef:
+                name: twitter-api-key
+            - configMapRef:
+                name: i-ris-image-crawler-config
+            volumeMounts:
+            - name: iris-image-crawler
+              mountPath: "/mnt/nfs"
+          volumes:
+          - name: iris-image-crawler
+            persistentVolumeClaim:
+              claimName: iris-image-crawler-pvc
+          restartPolicy: Never
+      backoffLimit: 5

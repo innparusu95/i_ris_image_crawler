@@ -5,7 +5,6 @@ COPY Gemfile Gemfile.lock ./
 
 RUN bundle install
 
-COPY . .
+COPY ./main.rb .
 
 CMD ["./main.rb"]
-
