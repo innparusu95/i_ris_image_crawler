@@ -29,18 +29,18 @@ class ImageCrawler
 
   private
 
-  def download(uri:, file_name:)
-    FileUtils.mkdir_p(dir_path) unless Dir.exist?(dir_path)
-    Kernel.open("#{uri}:large") do |image|
-      File.open("#{dir_path}/#{file_name}", 'wb') do |file|
-        file.puts image.read
+    def download(uri:, file_name:)
+      FileUtils.mkdir_p(dir_path) unless Dir.exist?(dir_path)
+      Kernel.open("#{uri}:large") do |image|
+        File.open("#{dir_path}/#{file_name}", 'wb') do |file|
+          file.puts image.read
+        end
       end
     end
-  end
 
-  def dir_path
-    "#{@dir_path}/#{screen_name}"
-  end
+    def dir_path
+      "#{@dir_path}/#{screen_name}"
+    end
 end
 
 DIR_PATH = ENV['IMAGE_DOWNLOAD_DIR_PATH'].freeze
