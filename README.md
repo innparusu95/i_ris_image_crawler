@@ -1,7 +1,7 @@
-# I☆Ris Image Crawler
-- @innparusu の I☆Risリストから画像を取得するやつ
+# Image Crawler
+- @innparusu の I☆Ris, 26時のマスカレイドリストから画像を取得するやつ
 
 ```
-$ docker build . --tag i_ris_image_crawler
-$ docker run -it --rm --env-file=./env_file i_ris_image_crawler
+$ docker build . --tag image_crawler
+$ docker run -it --rm --env-file=./env_file image_crawler
 ```
