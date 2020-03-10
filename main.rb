@@ -33,7 +33,7 @@ class ImageCrawler
 
     def download(uri:, file_name:)
       FileUtils.mkdir_p(dir_path) unless Dir.exist?(dir_path)
-      Kernel.open("#{uri}:large") do |image|
+      URI.open("#{uri}:large") do |image|
         File.open("#{dir_path}/#{file_name}", 'wb') do |file|
           file.puts image.read
         end
