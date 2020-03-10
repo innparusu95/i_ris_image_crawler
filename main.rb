@@ -1,10 +1,9 @@
-#!/usr/bin/env ruby
-# frozen_string_literal: true
+#frozen_string_literal: true
 
 require 'date'
 require 'open-uri'
 require 'twitter'
-require 'fileutils'
+require 'aws-sdk'
 
 class ImageCrawler
   attr_reader :client, :screen_name
@@ -14,6 +13,7 @@ class ImageCrawler
     @client = client
     @screen_name = screen_name
     @dir_path = dir_path
+    @bucket = Aws::S3::Resource.new.bucket(ENV["AWS_S3_BUCKET"])
   end
 
   def crawl(range:)
@@ -32,11 +32,8 @@ class ImageCrawler
   private
 
     def download(uri:, file_name:)
-      FileUtils.mkdir_p(dir_path) unless Dir.exist?(dir_path)
       URI.open("#{uri}:large") do |image|
-        File.open("#{dir_path}/#{file_name}", 'wb') do |file|
-          file.puts image.read
-        end
+        @bucket.object("#{dir_path}/#{file_name}").put(body: image.read)
       end
     end
 
@@ -49,29 +46,20 @@ class ListImageCrawler
   attr_reader :client, :list_name, :range
   private :client, :list_name, :range
 
-  def initialize(client:, list_name:, range:, dir_path:)
+  def initialize(client:, list_name:, range:)
     @client = client
     @list_name = list_name
     @range = range
-    @dir_path = dir_path
   end
 
   def crawl
-    FileUtils.mkdir_p(dir_path) unless Dir.exist?(dir_path)
     client.list_members(slug: list_name).map(&:screen_name).each do |screen_name|
-      ImageCrawler.new(client: client, screen_name: screen_name, dir_path: dir_path).crawl(range: range)
+      ImageCrawler.new(client: client, screen_name: screen_name, dir_path: list_name).crawl(range: range)
     end
   end
-
-  private
-
-    def dir_path
-      "#{@dir_path}/#{list_name}"
-    end
 end
 
-
-def main
+def lambda_handler(event:, context:)
   client = Twitter::REST::Client.new do |config|
     config.consumer_key        = ENV['TWITTER_CONSUMER_KEY']
     config.consumer_secret     = ENV['TWITTER_CONSUMER_SECRET']
@@ -79,13 +67,11 @@ def main
     config.access_token_secret = ENV['TWITTER_ACCESS_TOKEN_SECRET']
   end
 
-  today = Time.now.to_date
+  now = Time.now
+  today = now.getlocal("+09:00").to_date
   yesterday = today.prev_day
-  dir_path = ENV['IMAGE_DOWNLOAD_DIR_PATH']
 
   %w[i-ris nijimasu].each do |list_name|
-    ListImageCrawler.new(client: client, list_name: list_name, range: yesterday..today, dir_path: dir_path).crawl
+    ListImageCrawler.new(client: client, list_name: list_name, range: yesterday..today).crawl
   end
 end
-
-main
